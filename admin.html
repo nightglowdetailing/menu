@@ -94,8 +94,12 @@ async function loadBookings(){
   $("bookings").replaceChildren();
   $("message").textContent="Pobieranie rezerwacji…";
   try {
-    const snapshot=await getDocs(collection(db,"bookings"));
-
+    const snapshot=await
+      getDocs(collection(db,"bookings"));
+$("message").textContent =
+  "Projekt: " + app.options.projectId +
+  " | Baza: " + db.app.options.projectId +
+  " | Dokumenty: " + snapshot.size;
 console.log("Firebase project:", app.options.projectId);
 console.log("Liczba dokumentów:", snapshot.size);
 console.log("Dokumenty:", snapshot.docs.map(d => ({
