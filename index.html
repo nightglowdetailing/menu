@@ -293,7 +293,7 @@ document.getElementById('next').disabled=vm>=new Date(td.getFullYear(),td.getMon
 cg.addEventListener('click',function(e){var b=e.target.closest('.day');if(!b||b.disabled)return;
 var d=new Date(+b.dataset.t);sel=+d;selTxt=fmt(d);var l=lvl(d);
 pk.textContent='Wybrany termin: '+selTxt+' ('+ST[l]+')';
-bk.hidden=false;bk.href='mailto:nightglowdetailing@gmail.com?subject='+encodeURIComponent('Umówienie wizyty')+'&body='+encodeURIComponent('Dzień dobry,\nchcę umówić wizytę: '+selTxt+'\nMarka i model auta: \nZakres prac: ');
+bk.hidden=false;bk.href='#':nightglowdetailing@gmail.com?subject='+encodeURIComponent('Umówienie wizyty')+'&body='+encodeURIComponent('Dzień dobry,\nchcę umówić wizytę: '+selTxt+'\nMarka i model auta: \nZakres prac: ');
 draw();if(typeof calc==='function')calc()});
 document.getElementById('prev').addEventListener('click',function(){vm=new Date(vm.getFullYear(),vm.getMonth()-1,1);draw()});
 document.getElementById('next').addEventListener('click',function(){vm=new Date(vm.getFullYear(),vm.getMonth()+1,1);draw()});
