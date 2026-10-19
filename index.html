@@ -373,8 +373,9 @@ async function saveBooking(link, source) {
 
 document.getElementById("book")?.addEventListener("click", function(e) {
   e.preventDefault();
+  e.stopImmediatePropagation();
   saveBooking(this, "kalendarz");
-});
+}, true);
 
 document.getElementById("mail")?.addEventListener("click", function(e) {
   e.preventDefault();
