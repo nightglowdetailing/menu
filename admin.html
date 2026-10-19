@@ -1,265 +1,356 @@
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Nightglow Detailing — Admin</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 20px;
-      background: #101010;
-      color: #f2f2f2;
-      font-family: Arial, sans-serif;
-    }
-    main { max-width: 1000px; margin: 0 auto; }
-    h1 { letter-spacing: 2px; }
-    .muted { color: #aaa; }
-    .panel {
-      background: #1b1b1b;
-      border: 1px solid #383838;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 18px 0;
-    }
-    input, button, select {
-      width: 100%;
-      padding: 12px;
-      margin: 7px 0;
-      border-radius: 7px;
-      border: 1px solid #444;
-      font-size: 15px;
-    }
-    input, select {
-      color: white;
-      background: #111;
-    }
-    button {
-      cursor: pointer;
-      background: #eee;
-      color: #111;
-      font-weight: bold;
-    }
-    button.secondary {
-      background: #292929;
-      color: white;
-      border-color: #555;
-    }
-    button:disabled { opacity: .5; cursor: wait; }
-    .booking {
-      border: 1px solid #383838;
-      border-radius: 10px;
-      padding: 16px;
-      margin: 12px 0;
-      overflow-wrap: anywhere;
-    }
-    .booking p { margin: 8px 0; }
-    .actions {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .actions button { margin: 0; }
-    .status { color: #ddd; font-weight: bold; }
-    #message, #loginMessage { white-space: pre-wrap; overflow-wrap: anywhere; font-weight: bold; }
-    #loginMessage { color: #ff6b6b; margin-top: 10px; }
-    .hidden { display: none !important; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nightglow Detailing — Panel administratora</title>
+<style>
+:root {
+  color-scheme: dark;
+  font-family: Arial, Helvetica, sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 20px;
+  background: #101010;
+  color: #f3f3f3;
+}
+main { width: 100%; max-width: 1100px; margin: auto; }
+header { padding: 12px 0 20px; border-bottom: 1px solid #333; }
+h1 { font-size: 25px; letter-spacing: 2px; }
+h2 { font-size: 21px; }
+.muted { color: #aaa; }
+.panel, .booking {
+  background: #1b1b1b;
+  border: 1px solid #383838;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 18px 0;
+}
+input, button, select {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #484848;
+  border-radius: 7px;
+  font: inherit;
+}
+input, select { background: #111; color: #fff; }
+button {
+  background: #ededed;
+  color: #111;
+  font-weight: 700;
+  cursor: pointer;
+}
+button.secondary {
+  background: #292929;
+  color: #eee;
+}
+button:disabled { opacity: .55; cursor: wait; }
+.hidden { display: none !important; }
+#message, #loginMessage {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+.booking { overflow-wrap: anywhere; }
+.booking h3 { margin-top: 0; }
+.booking p { margin: 8px 0; }
+.status { color: #ddd; font-weight: bold; }
+.actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 8px;
+  margin-top: 15px;
+}
+.actions button { margin: 0; }
+label { display: block; margin-top: 12px; }
+@media (max-width: 500px) {
+  body { padding: 12px; }
+  .panel, .booking { padding: 14px; }
+}
+</style>
 </head>
 <body>
 <main>
-  <h1>NIGHTGLOW <span class="muted">DETAILING</span></h1>
-  <p class="muted">Panel administracyjny</p>
+<header>
+  <h1>NIGHTGLOW DETAILING</h1>
+  <p class="muted">Panel administracyjny rezerwacji</p>
+</header>
 
-  <!-- Panel logowania (widoczny domyślnie) -->
-  <section id="loginPanel" class="panel">
-    <h2>Logowanie</h2>
-    <form id="loginForm">
-      <input id="email" type="email" placeholder="Adres e-mail"
-             autocomplete="username" required>
-      <input id="password" type="password" placeholder="Hasło"
-             autocomplete="current-password" required>
-      <button id="loginButton" type="submit">Zaloguj się</button>
-    </form>
-    <p id="loginMessage" role="status"></p>
-  </section>
+<section id="loginPanel" class="panel">
+  <h2>Logowanie</h2>
+  <form id="loginForm">
+    <label for="email">Adres e-mail</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="password">Hasło</label>
+    <input id="password" type="password"
+           autocomplete="current-password" required>
+    <button id="loginButton" type="submit">Zaloguj się</button>
+  </form>
+  <p id="loginMessage" role="status"></p>
+</section>
 
-  <!-- Panel administracyjny z rezerwacjami (ukryty do momentu zalogowania) -->
-  <section id="adminPanel" class="hidden">
-    <div class="panel">
-      <h2>Rezerwacje</h2>
-      <p id="accountInfo" class="muted"></p>
-      <button id="refreshButton" type="button">Odśwież rezerwacje</button>
-      <button id="logoutButton" class="secondary" type="button">
-        Wyloguj
-      </button>
-      <p id="message" role="status"></p>
-    </div>
-    <div id="bookings"></div>
-  </section>
+<section id="adminPanel" class="hidden">
+  <div class="panel">
+    <h2>Rezerwacje</h2>
+    <p id="accountInfo" class="muted"></p>
+    <button id="refreshButton" type="button">Odśwież rezerwacje</button>
+    <button id="logoutButton" type="button" class="secondary">Wyloguj</button>
+    <p id="message" role="status"></p>
+  </div>
+  <div id="bookings"></div>
+</section>
 </main>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getAuth,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import {
-    getFirestore,
-    collection,
-    getDocs,
-    doc,
-    updateDoc
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA-GFFqYaJBIAJYRGCiG3RqsA0Qv7uqeHME",
-    authDomain: "nightglow-detailing.firebaseapp.com",
-    projectId: "nightglow-detailing",
-    storageBucket: "nightglow-detailing.firebasestorage.app",
-    messagingSenderId: "498718568327",
-    appId: "1:498718568327:web:7407af75b4568883df2d22"
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA-GFFqYaJBIAJYRGCiG3RqsA0Qv7uqeHME",
+  authDomain: "nightglow-detailing.firebaseapp.com",
+  projectId: "nightglow-detailing",
+  storageBucket: "nightglow-detailing.firebasestorage.app",
+  messagingSenderId: "498718568327",
+  appId: "1:498718568327:web:7407af75b4568883df2d22"
+};
+
+const ADMIN_UID = "G94trFFtkMXjH4g27uN0ceVmVcF2";
+const $ = id => document.getElementById(id);
+
+const loginPanel = $("loginPanel");
+const adminPanel = $("adminPanel");
+const loginMessage = $("loginMessage");
+const message = $("message");
+const bookingsEl = $("bookings");
+const loginButton = $("loginButton");
+
+let auth;
+let db;
+let loadingBookings = false;
+
+function describeError(error) {
+  const code = error?.code || "unknown";
+  const known = {
+    "auth/invalid-credential": "Nieprawidłowy e-mail lub hasło.",
+    "auth/wrong-password": "Nieprawidłowe hasło.",
+    "auth/user-not-found": "Nie znaleziono konta.",
+    "auth/invalid-email": "Nieprawidłowy adres e-mail.",
+    "auth/too-many-requests": "Za dużo prób logowania. Spróbuj później.",
+    "auth/unauthorized-domain":
+      "Domena GitHub Pages nie jest dozwolona w Firebase Authentication.",
+    "auth/api-key-not-valid":
+      "Firebase odrzuca klucz API. Sprawdź konfigurację aplikacji Web i ograniczenia klucza.",
+    "permission-denied":
+      "Firestore odrzucił dostęp. Sprawdź reguły dostępu administratora."
   };
 
-  const ADMIN_UID = "G94trFFtkMXjH4g27uN0ceVmVcF2";
+  return (known[code] || error?.message || "Nieznany błąd") +
+    "\nKod: " + code;
+}
 
+function setLoginError(error) {
+  loginMessage.textContent = "Błąd: " + describeError(error);
+}
+
+function addField(card, label, value) {
+  const p = document.createElement("p");
+  const strong = document.createElement("strong");
+  strong.textContent = label;
+  p.append(strong, document.createTextNode(
+    value === undefined || value === null || value === ""
+      ? "—"
+      : String(value)
+  ));
+  card.appendChild(p);
+}
+
+function makeButton(label, action, secondary = false) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = label;
+  if (secondary) button.className = "secondary";
+  button.addEventListener("click", action);
+  return button;
+}
+
+/* LOGOWANIE */
+try {
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+  auth = getAuth(app);
+  db = getFirestore(app);
+} catch (error) {
+  setLoginError(error);
+}
 
-  const $ = id => document.getElementById(id);
-  const loginPanel = $("loginPanel");
-  const adminPanel = $("adminPanel");
-  const loginMessage = $("loginMessage");
-  const message = $("message");
-  const bookingsEl = $("bookings");
-
-  function showLoginMessage(text) {
-    loginMessage.textContent = text;
+$("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!auth) {
+    loginMessage.textContent = "Firebase nie został uruchomiony.";
+    return;
   }
 
-  function showMessage(text) {
-    message.textContent = text;
+  loginButton.disabled = true;
+  loginButton.textContent = "Logowanie…";
+  loginMessage.textContent = "";
+
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      $("email").value.trim(),
+      $("password").value
+    );
+  } catch (error) {
+    setLoginError(error);
+  } finally {
+    loginButton.disabled = false;
+    loginButton.textContent = "Zaloguj się";
   }
+});
 
-  function friendlyError(error) {
-    const messages = {
-      "auth/invalid-credential": "Nieprawidłowy e-mail lub hasło.",
-      "auth/user-not-found": "Nie znaleziono konta. Sprawdź konfigurację Authentication.",
-      "auth/wrong-password": "Nieprawidłowe hasło.",
-      "auth/too-many-requests": "Zbyt wiele prób. Spróbuj później.",
-      "auth/operation-not-allowed": "Logowanie przez e-mail/hasło jest WYŁĄCZONE w konsoli Firebase! Włącz je w zakładce Authentication -> Sign-in method.",
-      "auth/api-key-not-valid": "Firebase odrzuca klucz API. Sprawdź konfigurację Web App oraz ograniczenia klucza w Google Cloud Console.",
-      "auth/unauthorized-domain": "Domena strony nie jest dozwolona w Firebase Authentication.",
-      "permission-denied": "Brak uprawnień Firestore dla tego konta."
-    };
-
-    return (messages[error.code] || error.message || "Nieznany błąd")
-      + " (Kod: " + (error.code || "brak") + ")";
-  }
-
-  // Obsługa kliknięcia "Zaloguj się"
-  $("loginForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    const button = $("loginButton");
-    button.disabled = true;
-    showLoginMessage("Logowanie...");
-
-    try {
-      await signInWithEmailAndPassword(
-        auth,
-        $("email").value.trim(),
-        $("password").value
-      );
-    } catch (error) {
-      console.error("Szczegóły błędu logowania:", error);
-      showLoginMessage("Błąd: " + friendlyError(error));
-    } finally {
-      button.disabled = false;
-    }
-  });
-
-  $("logoutButton").addEventListener("click", async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      showMessage(friendlyError(error));
-    }
-  });
-
-  $("refreshButton").addEventListener("click", loadBookings);
-
-  // Nasłuchiwanie stanu logowania (pokazuje panel rezerwacji po zalogowaniu)
-  onAuthStateChanged(auth, async user => {
-    if (!user) {
-      loginPanel.classList.remove("hidden");
-      adminPanel.classList.add("hidden");
-      bookingsEl.replaceChildren();
-      return;
-    }
-
-    loginPanel.classList.add("hidden");
-    adminPanel.classList.remove("hidden");
-    showLoginMessage("");
-    $("accountInfo").textContent =
-      "Konto: " + (user.email || "brak e-maila") +
-      "\nUID: " + user.uid;
-
-    if (user.uid !== ADMIN_UID) {
-      showMessage(
-        "Zalogowano na inne konto niż konto administratora.\n" +
-        "Sprawdź UID powyżej."
-      );
-      bookingsEl.replaceChildren();
-      return;
-    }
-
-    await loadBookings();
-  });
-
-  function addText(parent, tag, label, value) {
-    const p = document.createElement(tag);
-    const strong = document.createElement("strong");
-    strong.textContent = label;
-    p.append(strong, document.createTextNode(
-      value == null || value === "" ? "—" : String(value)
-    ));
-    parent.appendChild(p);
-  }
-
-  // Funkcja ładująca rezerwacje i generująca przyciski akcji
-  async function loadBookings() {
-    if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return;
-
-    showMessage("Ładowanie rezerwacji…");
+/* SESJA ADMINISTRATORA */
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    loginPanel.classList.remove("hidden");
+    adminPanel.classList.add("hidden");
     bookingsEl.replaceChildren();
+    return;
+  }
 
-    try {
-      const snapshot = await getDocs(collection(db, "bookings"));
+  loginPanel.classList.add("hidden");
+  adminPanel.classList.remove("hidden");
+  $("accountInfo").textContent =
+    "Zalogowano: " + (user.email || "konto Firebase");
 
-      if (snapshot.empty) {
-        showMessage("Brak rezerwacji w kolekcji bookings.");
-        return;
-      }
+  if (user.uid !== ADMIN_UID) {
+    message.textContent =
+      "To konto nie ma uprawnień administratora.\nUID: " + user.uid;
+    bookingsEl.replaceChildren();
+    return;
+  }
 
-      const fragment = document.createDocumentFragment();
+  await loadBookings();
+});
 
-      snapshot.forEach(bookingDoc => {
-        const data = bookingDoc.data();
-        const card = document.createElement("article");
-        card.className = "booking";
+$("logoutButton").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    loginMessage.textContent = "";
+  } catch (error) {
+    message.textContent = "Błąd wylogowania: " + describeError(error);
+  }
+});
 
-        const title = document.createElement("h3");
-        title.textContent = data.name || data.clientName ||
-          data.fullName || "Rezerwacja";
-        card.appendChild(title);
+$("refreshButton").addEventListener("click", loadBookings);
 
-        addText(card, "p", "E-mail: ", data.email || data.clientEmail);
-        addText(card, "p", "Telefon: ", data.phone || data.telephone);
-        addText(card, "p", "Usługa: ", data.service || data.services);
-        addText(card, "p", "
+/* POBIERANIE REZERWACJI */
+async function loadBookings() {
+  if (loadingBookings) return;
+  const user = auth.currentUser;
+
+  if (!user || user.uid !== ADMIN_UID) return;
+
+  loadingBookings = true;
+  $("refreshButton").disabled = true;
+  message.textContent = "Pobieranie rezerwacji…";
+  bookingsEl.replaceChildren();
+
+  try {
+    const snapshot = await getDocs(collection(db, "bookings"));
+
+    if (snapshot.empty) {
+      message.textContent = "Brak zapisanych rezerwacji.";
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    snapshot.forEach(item => {
+      const data = item.data();
+      const card = document.createElement("article");
+      card.className = "booking";
+
+      const heading = document.createElement("h3");
+      heading.textContent = data.name || data.clientName ||
+        data.fullName || "Rezerwacja";
+      card.appendChild(heading);
+
+      addField(card, "E-mail: ", data.email || data.clientEmail);
+      addField(card, "Telefon: ", data.phone || data.telephone);
+      addField(card, "Usługa: ", data.service || data.services);
+      addField(card, "Data: ",
+        data.date || data.datetime || data.appointmentDate);
+      addField(card, "Godzina: ",
+        data.time || data.appointmentTime);
+
+      const status = document.createElement("p");
+      status.className = "status";
+      status.textContent = "Status: " + (data.status || "nowa");
+      card.appendChild(status);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      actions.appendChild(makeButton("Potwierdź", () =>
+        changeStatus(item.id, "confirmed")));
+
+      actions.appendChild(makeButton("Odrzuć", () =>
+        changeStatus(item.id, "rejected")));
+
+      actions.appendChild(makeButton("Ustaw jako oczekującą", () =>
+        changeStatus(item.id, "pending"), true));
+
+      fragment.appendChild(card);
+      card.appendChild(actions);
+    });
+
+    bookingsEl.appendChild(fragment);
+    message.textContent = "Liczba rezerwacji: " + snapshot.size;
+  } catch (error) {
+    message.textContent =
+      "Nie udało się pobrać rezerwacji: " + describeError(error);
+  } finally {
+    loadingBookings = false;
+    $("refreshButton").disabled = false;
+  }
+}
+
+/* ZMIANA STATUSU */
+async function changeStatus(id, status) {
+  if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+    message.textContent = "Brak uprawnień administratora.";
+    return;
+  }
+
+  message.textContent = "Zapisywanie statusu…";
+
+  try {
+    await updateDoc(doc(db, "bookings", id), { status });
+    message.textContent = "Status zapisany.";
+    await loadBookings();
+  } catch (error) {
+    message.textContent =
+      "Nie udało się zmienić statusu: " + describeError(error);
+  }
+}
+</script>
+</body>
+</html>
