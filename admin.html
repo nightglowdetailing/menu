@@ -77,6 +77,7 @@ const $ = id => document.getElementById(id);
 $("loginForm").addEventListener("submit", async e => {
   e.preventDefault();
   $("message").textContent = "Logowanie…";
+
   try {
     await signInWithEmailAndPassword(
       auth, $("email").value.trim(), $("password").value
@@ -105,6 +106,7 @@ onAuthStateChanged(auth, async user => {
   await loadBookings();
 });
 
+// Otwiera Gmail w przeglądarce z gotową wiadomością.
 function openEmail(data, status) {
   if (!data.email) {
     alert("Ta rezerwacja nie ma adresu e-mail klienta.");
@@ -112,6 +114,7 @@ function openEmail(data, status) {
   }
 
   const confirmed = status === "confirmed";
+
   const subject = confirmed
     ? "Potwierdzenie rezerwacji — NightGlow Detailing"
     : "Informacja o rezerwacji — NightGlow Detailing";
@@ -141,33 +144,31 @@ Data rezerwacji: ${data.date || "nie podano"}
 Pozdrawiamy,
 NightGlow Detailing`;
 
-  window.location.href =
-    "mailto:" + encodeURIComponent(data.email) +
-    "?subject=" + encodeURIComponent(subject) +
+  const gmailUrl =
+    "https://mail.google.com/mail/?view=cm&fs=1" +
+    "&to=" + encodeURIComponent(data.email) +
+    "&su=" + encodeURIComponent(subject) +
     "&body=" + encodeURIComponent(body);
+
+  // Przejście bezpośrednio do Gmaila.
+  window.location.assign(gmailUrl);
 }
 
-
 async function changeStatus(id, data, status) {
-  if (status === "confirmed" && !data.email) {
-    alert("Brak adresu e-mail klienta.");
+  if (!data.email) {
+    alert("Brak adresu e-mail klienta. Status nie został zmieniony.");
     return;
   }
 
-  const shouldEmail = status === "confirmed" || status === "rejected";
+  // Przygotuj adres Gmail przed operacją Firebase,
+  // aby przejście do poczty nie zależało od opóźnienia zapisu.
+  const confirmed = status === "confirmed";
+  const subject = confirmed
+    ? "Potwierdzenie rezerwacji — NightGlow Detailing"
+    : "Informacja o rezerwacji — NightGlow Detailing";
 
-  // Otwórz okno poczty bezpośrednio przy kliknięciu,
-  // zanim wykonamy operacje Firebase.
-  let mailWindow = null;
-
-  if (shouldEmail && data.email) {
-    const confirmed = status === "confirmed";
-    const subject = confirmed
-      ? "Potwierdzenie rezerwacji — NightGlow Detailing"
-      : "Informacja o rezerwacji — NightGlow Detailing";
-
-    const body = confirmed
-      ? `Cześć!
+  const body = confirmed
+    ? `Cześć!
 
 Potwierdzamy Twoją rezerwację w NightGlow Detailing.
 
@@ -179,7 +180,7 @@ Cena: ${data.price || "do ustalenia"}
 Dziękujemy i do zobaczenia!
 
 NightGlow Detailing`
-      : `Cześć!
+    : `Cześć!
 
 Niestety, nie możemy potwierdzić Twojej rezerwacji w podanym terminie.
 Skontaktuj się z nami, aby ustalić inny termin.
@@ -188,44 +189,25 @@ Data: ${data.date || "nie podano"}
 
 NightGlow Detailing`;
 
-    const mailto = "mailto:" + encodeURIComponent(data.email) +
-      "?subject=" + encodeURIComponent(subject) +
-      "&body=" + encodeURIComponent(body);
+  const gmailUrl =
+    "https://mail.google.com/mail/?view=cm&fs=1" +
+    "&to=" + encodeURIComponent(data.email) +
+    "&su=" + encodeURIComponent(subject) +
+    "&body=" + encodeURIComponent(body);
 
-    mailWindow = window.open(mailto, "_blank");
-  }
+  // Najpierw otwieramy pocztę bezpośrednio po kliknięciu.
+  window.open(gmailUrl, "_blank");
 
   try {
     await updateDoc(doc(db, "bookings", id), { status });
+    $("message").textContent = confirmed
+      ? "Rezerwacja potwierdzona. Sprawdź kartę Gmail."
+      : "Rezerwacja odrzucona. Sprawdź kartę Gmail.";
 
-    $("message").textContent = "Zmieniono status rezerwacji.";
     await loadBookings();
-
-    if (shouldEmail && !mailWindow) {
-      $("message").textContent =
-        "Status zapisano. Jeśli poczta się nie otworzyła, zezwól przeglądarce na otwieranie linków mailto.";
-    }
-  } catch (err) {
-    if (mailWindow) mailWindow.close();
+  } catch(err) {
     $("message").textContent =
       "Nie udało się zmienić statusu: " + err.message;
-  }
-}
-  
-  try {
-    await updateDoc(doc(db, "bookings", id), { status });
-    $("message").textContent =
-      status === "confirmed"
-        ? "Rezerwacja potwierdzona."
-        : "Rezerwacja odrzucona.";
-
-    await loadBookings();
-
-    if (status === "confirmed" || status === "rejected") {
-      openEmail(data, status);
-    }
-  } catch(err) {
-    $("message").textContent = "Nie udało się zmienić statusu: " + err.message;
   }
 }
 
@@ -289,7 +271,9 @@ async function loadBookings() {
         const emailBtn = document.createElement("button");
         emailBtn.className = "secondary";
         emailBtn.textContent = "Otwórz e-mail ponownie";
-        emailBtn.addEventListener("click", () => openEmail(data, status));
+        emailBtn.addEventListener("click", () =>
+          openEmail(data, status)
+        );
         actions.appendChild(emailBtn);
       }
 
