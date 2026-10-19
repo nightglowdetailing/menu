@@ -4,61 +4,217 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NightGlow — Panel administratora</title>
+  <title>NightGlow — Admin</title>
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
+      padding: 22px;
       background: #101010;
       color: #eee;
       font-family: Arial, sans-serif;
-      padding: 24px;
     }
-    main {
-      max-width: 480px;
-      margin: 60px auto;
+    main { max-width: 850px; margin: 35px auto; }
+    .panel {
       background: #1b1b1b;
-      border: 1px solid #444;
-      border-radius: 14px;
-      padding: 24px;
+      border: 1px solid #383838;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 18px;
     }
-    h1 { font-size: 25px; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 19px; }
     p { color: #bbb; line-height: 1.5; }
     input, button {
       width: 100%;
       padding: 13px;
-      margin-top: 12px;
+      margin: 7px 0;
       border-radius: 7px;
-      font-size: 16px;
+      font-size: 15px;
     }
     input {
-      background: #111;
       color: white;
+      background: #111;
       border: 1px solid #555;
     }
     button {
       background: white;
       color: black;
-      border: 0;
+      border: none;
       font-weight: bold;
+      cursor: pointer;
     }
+    button.secondary {
+      background: #333;
+      color: white;
+      border: 1px solid #555;
+    }
+    .booking {
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 14px;
+      margin: 12px 0;
+      overflow-wrap: anywhere;
+    }
+    .hidden { display: none; }
     #message { overflow-wrap: anywhere; }
   </style>
 </head>
 <body>
-  <main>
-    <h1>NightGlow Detailing</h1>
-    <p>Panel administratora</p>
+<main>
+  <h1>NightGlow Detailing</h1>
+  <p>Panel administratora</p>
 
-    <form id="login">
+  <section class="panel" id="loginPanel">
+    <h2>Logowanie</h2>
+    <form id="loginForm">
       <input id="email" type="email"
-        placeholder="Adres e-mail administratora" required>
+        placeholder="E-mail administratora" required>
       <input id="password" type="password"
         placeholder="Hasło" required>
       <button type="submit">Zaloguj się</button>
     </form>
+  </section>
 
-    <p id="message">Panel logowania zostanie podłączony do Firebase w następnym kroku.</p>
-  </main>
+  <section class="panel hidden" id="adminPanel">
+    <h2>Rezerwacje</h2>
+    <p id="account"></p>
+    <button id="refresh">Odśwież rezerwacje</button>
+    <button class="secondary" id="logout">Wyloguj</button>
+    <div id="bookings"></div>
+  </section>
+
+  <section class="panel">
+    <p id="message">Ładowanie Firebase…</p>
+  </section>
+</main>
+
+<script type="module">
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+/* WKLEJ TUTAJ SWOJĄ KONFIGURACJĘ FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyA-GFFqYaJBIAJYRgCI3RqsA0Qv7uqeHME",
+  authDomain: "nightglow-detailing.firebaseapp.com",
+  projectId: "nightglow-detailing",
+  storageBucket: "nightglow-detailing.firebasestorage.app",
+  messagingSenderId: "498718568327",
+  appId: "1:498718568327:web:7407af75b4568883df2d22"
+};
+
+const ADMIN_UID = "G94trFFtkMXjH4g27uN0ceVmVcF2";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const loginPanel = document.getElementById("loginPanel");
+const adminPanel = document.getElementById("adminPanel");
+const message = document.getElementById("message");
+const bookings = document.getElementById("bookings");
+
+document.getElementById("loginForm").addEventListener("submit",
+  async (e) => {
+    e.preventDefault();
+    message.textContent = "Logowanie…";
+
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        document.getElementById("email").value.trim(),
+        document.getElementById("password").value
+      );
+    } catch (error) {
+      message.textContent = "Błąd logowania: " + error.message;
+    }
+  }
+);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    loginPanel.classList.remove("hidden");
+    adminPanel.classList.add("hidden");
+    return;
+  }
+
+  if (user.uid !== ADMIN_UID) {
+    await signOut(auth);
+    message.textContent = "Brak uprawnień administratora.";
+    return;
+  }
+
+  loginPanel.classList.add("hidden");
+  adminPanel.classList.remove("hidden");
+  document.getElementById("account").textContent =
+    "Zalogowano jako: " + user.email;
+  message.textContent = "Zalogowano poprawnie.";
+  await loadBookings();
+});
+
+async function loadBookings() {
+  bookings.replaceChildren();
+  message.textContent = "Pobieranie rezerwacji…";
+
+  try {
+    const q = query(
+      collection(db, "bookings"),
+      orderBy("createdAt", "desc")
+    );
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      bookings.textContent = "Brak rezerwacji.";
+    }
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const card = document.createElement("div");
+      card.className = "booking";
+
+      const title = document.createElement("h3");
+      title.textContent = "Rezerwacja";
+      card.appendChild(title);
+
+      for (const [key, value] of Object.entries(data)) {
+        const line = document.createElement("p");
+        line.textContent = key + ": " +
+          (typeof value === "string" ? value : JSON.stringify(value));
+        card.appendChild(line);
+      }
+
+      bookings.appendChild(card);
+    });
+
+    message.textContent = "Pobrano rezerwacje: " + snapshot.size;
+  } catch (error) {
+    message.textContent =
+      "Nie udało się pobrać rezerwacji. Sprawdź reguły Firestore. " +
+      error.message;
+  }
+}
+
+document.getElementById("refresh").addEventListener("click", loadBookings);
+
+document.getElementById("logout").addEventListener("click",
+  async () => {
+    await signOut(auth);
+    message.textContent = "Wylogowano.";
+  }
+);
+</script>
 </body>
 </html>
