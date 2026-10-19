@@ -311,6 +311,76 @@ f.addEventListener('change',calc);calc();
 var ba=document.getElementById('ba');
 ba.querySelector('input').addEventListener('input',function(e){ba.style.setProperty('--p',e.target.value)});
 })();
+
 </script>
+
+<script type="module">
+import {
+  initializeApp,
+  getApps,
+  getApp
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+const config = {
+  apiKey: "AIzaSyA-GFFqYaJBIAJYRgCI3RqsA0Qv7uqeHME",
+  authDomain: "nightglow-detailing.firebaseapp.com",
+  projectId: "nightglow-detailing",
+  storageBucket: "nightglow-detailing.firebasestorage.app",
+  messagingSenderId: "498718568327",
+  appId: "1:498718568327:web:7407af75b4568883df2d22"
+};
+
+const app = getApps().length
+  ? getApp()
+  : initializeApp(config);
+
+const db = getFirestore(app, "(default)");
+
+async function saveBooking(link, source) {
+  const originalText = link.textContent;
+  const url = new URL(link.href);
+
+  try {
+    link.style.pointerEvents = "none";
+    link.textContent = "Zapisywanie...";
+
+    await addDoc(collection(db, "bookings"), {
+      subject: url.searchParams.get("subject") || "Rezerwacja",
+      body: url.searchParams.get("body") || "",
+      source: source,
+      status: "new",
+      createdAt: serverTimestamp()
+    });
+
+    alert("Zgłoszenie zapisane!");
+
+  } catch (error) {
+    console.error(error);
+    alert("Błąd zapisu: " + error.message);
+
+  } finally {
+    link.style.pointerEvents = "";
+    link.textContent = originalText;
+  }
+}
+
+document.getElementById("book")?.addEventListener("click", function(e) {
+  e.preventDefault();
+  saveBooking(this, "kalendarz");
+});
+
+document.getElementById("mail")?.addEventListener("click", function(e) {
+  e.preventDefault();
+  saveBooking(this, "pakiet");
+});
+</script>
+
 </body>
 </html>
