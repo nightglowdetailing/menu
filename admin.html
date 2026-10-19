@@ -223,7 +223,7 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  if (user.uid !== ADMIN_UID) {
+  if (!ADMIN_UIDS.includes(user.uid)) {
     await signOut(auth);
     $("message").textContent =
       "To konto nie ma uprawnień administratora.";
