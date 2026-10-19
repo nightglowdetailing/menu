@@ -387,4 +387,15 @@ document.getElementById("mail")?.addEventListener("click", function(e) {
 </script>
 
 </body>
+
+  <script>
+document.addEventListener('click', function(e) {
+  const link = e.target.closest('#book');
+  if (!link) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  alert('Przechwycono kliknięcie kalendarza');
+}, true);
+  </script>
+  
 </html>
