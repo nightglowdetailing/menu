@@ -338,7 +338,6 @@ const config = {
 
 const app = getApps().length ? getApp() : initializeApp(config);
 const db = getFirestore(app, "(default)");
-const book = document.getElementById("book");
 
 book.addEventListener("click", async (e) => {
   e.preventDefault();
