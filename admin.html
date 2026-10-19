@@ -4,68 +4,188 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NightGlow — Admin</title>
+<meta name="theme-color" content="#0b0c0e">
+<title>NightGlow — Panel</title>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;padding:22px;background:#101010;color:#eee;font-family:Arial,sans-serif}
-main{max-width:850px;margin:35px auto}
-.panel{background:#1b1b1b;border:1px solid #383838;border-radius:12px;padding:22px;margin-bottom:18px}
-input,button{width:100%;padding:13px;margin:7px 0;border-radius:7px;font-size:15px}
-input{color:white;background:#111;border:1px solid #555}
-button{background:white;color:black;border:0;font-weight:bold;cursor:pointer}
-.secondary{background:#333;color:white}
-.confirm{background:#d9ead3;color:#173b1c}
-.reject{background:#f4cccc;color:#671515}
-.hidden{display:none}
-.booking{border:1px solid #444;border-radius:8px;padding:14px;margin:12px 0;overflow-wrap:anywhere}
-p{color:#bbb;overflow-wrap:anywhere}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.actions button{flex:1;min-width:130px}
-.status{font-weight:bold;color:#fff}
+:root {
+  color-scheme: dark;
+  --bg: #0b0c0e;
+  --panel: #131518;
+  --line: #292c31;
+  --text: #f0f0f0;
+  --muted: #92969e;
+  --gold: #c6aa76;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 22px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+main { max-width: 900px; margin: 35px auto; }
+header { margin-bottom: 28px; }
+.brand {
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+h1 { font-size: clamp(28px, 6vw, 42px); margin: 10px 0; }
+h2 { font-size: 21px; }
+p { color: var(--muted); overflow-wrap: anywhere; }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 18px;
+}
+input, button {
+  width: 100%;
+  padding: 14px;
+  margin: 7px 0;
+  border-radius: 8px;
+  font-size: 15px;
+}
+input {
+  color: white;
+  background: #0b0c0e;
+  border: 1px solid #393d43;
+}
+button {
+  background: var(--gold);
+  color: #111;
+  border: 0;
+  font-weight: bold;
+  cursor: pointer;
+}
+button:disabled { opacity: .5; cursor: wait; }
+.secondary {
+  background: #25282d;
+  border: 1px solid #393d43;
+  color: white;
+}
+.hidden { display: none !important; }
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.booking {
+  background: #0d0f11;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+  margin: 14px 0;
+}
+.booking h3 { margin: 0 0 8px; overflow-wrap: anywhere; }
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px;
+}
+.detail {
+  padding: 11px;
+  border: 1px solid #24272b;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.detail small {
+  display: block;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.detail span { white-space: pre-wrap; }
+.status {
+  display: inline-block;
+  border: 1px solid #4a4d52;
+  border-radius: 20px;
+  padding: 6px 10px;
+  font-size: 12px;
+  margin: 5px 0 14px;
+}
+.status.new { color: var(--gold); border-color: #766343; }
+.status.confirmed { color: #a6d9b0; border-color: #41694a; }
+.status.rejected { color: #e5a0a0; border-color: #754747; }
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+.actions .reject {
+  background: #302020;
+  color: #f0b3b3;
+  border: 1px solid #653939;
+}
+#message { line-height: 1.6; }
+@media (max-width: 480px) {
+  body { padding: 14px; }
+  main { margin: 20px auto; }
+  .panel { padding: 16px; }
+  .toolbar { grid-template-columns: 1fr; gap: 0; }
+}
 </style>
 </head>
+
 <body>
 <main>
-<h1>NightGlow Detailing</h1>
-<p>Panel administratora</p>
+<header>
+  <div class="brand">NightGlow Detailing</div>
+  <h1>Panel administratora</h1>
+  <p>Zarządzanie rezerwacjami</p>
+</header>
 
 <section class="panel" id="loginPanel">
-<h2>Logowanie</h2>
-<form id="loginForm">
-<input id="email" type="email" placeholder="E-mail administratora" required>
-<input id="password" type="password" placeholder="Hasło" required>
-<button type="submit">Zaloguj się</button>
-</form>
+  <h2>Logowanie</h2>
+  <form id="loginForm">
+    <input id="email" type="email"
+      placeholder="E-mail administratora" required>
+    <input id="password" type="password"
+      placeholder="Hasło" required>
+    <button type="submit">Zaloguj się</button>
+  </form>
 </section>
 
 <section class="panel hidden" id="adminPanel">
-<h2>Rezerwacje</h2>
-<p id="account"></p>
-<button id="refresh">Odśwież rezerwacje</button>
-<button class="secondary" id="logout">Wyloguj się</button>
-<div id="bookings"></div>
+  <h2>Rezerwacje</h2>
+  <p id="account"></p>
+  <div class="toolbar">
+    <button id="refresh">Odśwież rezerwacje</button>
+    <button class="secondary" id="logout">Wyloguj się</button>
+  </div>
+  <div id="bookings"></div>
 </section>
 
-<section class="panel"><p id="message">Gotowe.</p></section>
+<section class="panel">
+  <p id="message">Sprawdzanie połączenia…</p>
+</section>
 </main>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+
 import {
   getAuth, signInWithEmailAndPassword,
   onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
 import {
-  getFirestore, collection, getDocs, doc, updateDoc
+  getFirestore, collection, getDocs,
+  doc, updateDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA-GFFqYaJBIAJYRGCgI3RqsA0Qv7uqeHME",
+  apiKey: "AIzaSyA-GFFqYaJBIAJYRgCI3RqsA0Qv7uqeHME",
   authDomain: "nightglow-detailing.firebaseapp.com",
   projectId: "nightglow-detailing",
   storageBucket: "nightglow-detailing.firebasestorage.app",
   messagingSenderId: "498718568327",
-  appId: "1:498718568327:web:7407af75b4568883df2d22"
+  appId: "1:498718568327:web:7407af75b4568883df2d22",
 };
 
 const ADMIN_UID = "G94trFFtkMXjH4g27uN0ceVmVcF2";
@@ -74,14 +194,21 @@ const auth = getAuth(app);
 const db = getFirestore(app, "(default)");
 const $ = id => document.getElementById(id);
 
+const labels = {
+  new: "Nowa",
+  confirmed: "Potwierdzona",
+  rejected: "Odrzucona"
+};
+
 $("loginForm").addEventListener("submit", async e => {
   e.preventDefault();
   $("message").textContent = "Logowanie…";
+
   try {
     await signInWithEmailAndPassword(
       auth, $("email").value.trim(), $("password").value
     );
-  } catch(err) {
+  } catch (err) {
     $("message").textContent = "Błąd logowania: " + err.message;
   }
 });
@@ -95,7 +222,8 @@ onAuthStateChanged(auth, async user => {
 
   if (user.uid !== ADMIN_UID) {
     await signOut(auth);
-    $("message").textContent = "To konto nie ma uprawnień administratora.";
+    $("message").textContent =
+      "To konto nie ma uprawnień administratora.";
     return;
   }
 
@@ -105,63 +233,47 @@ onAuthStateChanged(auth, async user => {
   await loadBookings();
 });
 
-function openEmail(data, status) {
-  if (!data.email) {
-    alert("Ta rezerwacja nie ma adresu e-mail klienta.");
-    return;
-  }
+function addDetail(container, label, value) {
+  const box = document.createElement("div");
+  box.className = "detail";
 
-  const confirmed = status === "confirmed";
-  const subject = confirmed
-    ? "Potwierdzenie rezerwacji — NightGlow Detailing"
-    : "Informacja o rezerwacji — NightGlow Detailing";
+  const small = document.createElement("small");
+  small.textContent = label;
 
-  const body = confirmed
-    ? `Cześć!
+  const span = document.createElement("span");
+  span.textContent = value == null || value === ""
+    ? "Nie podano"
+    : String(value);
 
-Potwierdzamy Twoją rezerwację w NightGlow Detailing.
-
-Data rezerwacji: ${data.date || "do ustalenia"}
-Samochód: ${data.car || "nie podano"}
-Usługi: ${data.services || "do ustalenia"}
-Cena: ${data.price || "do ustalenia"}
-
-Dziękujemy za skorzystanie z naszych usług.
-Do zobaczenia!
-
-Pozdrawiamy,
-NightGlow Detailing`
-    : `Cześć!
-
-Niestety, nie możemy potwierdzić Twojej rezerwacji w podanym terminie.
-Skontaktuj się z nami, aby ustalić inny termin.
-
-Data rezerwacji: ${data.date || "nie podano"}
-
-Pozdrawiamy,
-NightGlow Detailing`;
-
-  window.location.href =
-    "mailto:" + encodeURIComponent(data.email) +
-    "?subject=" + encodeURIComponent(subject) +
-    "&body=" + encodeURIComponent(body);
+  box.append(small, span);
+  container.appendChild(box);
 }
 
-async function changeStatus(id, data, status) {
+async function changeStatus(id, status, button) {
+  const question = status === "confirmed"
+    ? "Potwierdzić tę rezerwację?"
+    : "Odrzucić tę rezerwację?";
+
+  if (!confirm(question)) return;
+
+  button.disabled = true;
+  $("message").textContent = "Zapisywanie zmiany…";
+
   try {
-    await updateDoc(doc(db, "bookings", id), { status });
+    await updateDoc(doc(db, "bookings", id), {
+      status,
+      updatedAt: serverTimestamp()
+    });
+
     $("message").textContent =
-      status === "confirmed"
-        ? "Rezerwacja potwierdzona."
-        : "Rezerwacja odrzucona.";
+      "Zapisano status: " + labels[status] +
+      ". E-mail do klienta nie jest jeszcze skonfigurowany.";
 
     await loadBookings();
-
-    if (status === "confirmed" || status === "rejected") {
-      openEmail(data, status);
-    }
-  } catch(err) {
-    $("message").textContent = "Nie udało się zmienić statusu: " + err.message;
+  } catch (err) {
+    console.error(err);
+    $("message").textContent = "Błąd zmiany statusu: " + err.message;
+    button.disabled = false;
   }
 }
 
@@ -174,67 +286,66 @@ async function loadBookings() {
 
     if (snapshot.empty) {
       $("bookings").textContent = "Brak rezerwacji.";
+      $("message").textContent = "Nie znaleziono rezerwacji.";
+      return;
     }
 
-    snapshot.forEach(bookingDoc => {
-      const data = bookingDoc.data();
-      const card = document.createElement("div");
+    const docs = snapshot.docs.sort((a, b) => {
+      const at = a.data().createdAt?.toMillis?.() || 0;
+      const bt = b.data().createdAt?.toMillis?.() || 0;
+      return bt - at;
+    });
+
+    for (const item of docs) {
+      const data = item.data();
+      const card = document.createElement("article");
       card.className = "booking";
 
       const heading = document.createElement("h3");
-      heading.textContent = "Rezerwacja: " + bookingDoc.id;
-      card.appendChild(heading);
+      heading.textContent = data.name || "Klient bez podanego imienia";
 
-      for (const [key, value] of Object.entries(data)) {
-        const line = document.createElement("p");
-        line.textContent = key + ": " +
-          (typeof value === "string" ? value : JSON.stringify(value));
-        card.appendChild(line);
-      }
+      const badge = document.createElement("span");
+      const status = labels[data.status] ? data.status : "new";
+      badge.className = "status " + status;
+      badge.textContent = labels[status];
 
-      const status = data.status || "new";
-      const statusLine = document.createElement("p");
-      statusLine.className = "status";
-      statusLine.textContent = "Status: " + status;
-      card.appendChild(statusLine);
+      const details = document.createElement("div");
+      details.className = "details";
+
+      addDetail(details, "Termin", data.date);
+      addDetail(details, "E-mail", data.email);
+      addDetail(details, "Telefon", data.phone);
+      addDetail(details, "Samochód", data.car);
+      addDetail(details, "Usługi", data.services);
+      addDetail(details, "Cena", data.price);
 
       const actions = document.createElement("div");
       actions.className = "actions";
 
-      if (status !== "confirmed") {
-        const confirm = document.createElement("button");
-        confirm.className = "confirm";
-        confirm.textContent = "Potwierdź";
-        confirm.addEventListener("click", () =>
-          changeStatus(bookingDoc.id, data, "confirmed")
-        );
-        actions.appendChild(confirm);
-      }
+      const accept = document.createElement("button");
+      accept.textContent = "Potwierdź";
+      accept.disabled = status === "confirmed";
+      accept.addEventListener("click", () =>
+        changeStatus(item.id, "confirmed", accept)
+      );
 
-      if (status !== "rejected") {
-        const reject = document.createElement("button");
-        reject.className = "reject";
-        reject.textContent = "Odrzuć";
-        reject.addEventListener("click", () =>
-          changeStatus(bookingDoc.id, data, "rejected")
-        );
-        actions.appendChild(reject);
-      }
+      const reject = document.createElement("button");
+      reject.textContent = "Odrzuć";
+      reject.className = "reject";
+      reject.disabled = status === "rejected";
+      reject.addEventListener("click", () =>
+        changeStatus(item.id, "rejected", reject)
+      );
 
-      if (status === "confirmed" || status === "rejected") {
-        const emailBtn = document.createElement("button");
-        emailBtn.className = "secondary";
-        emailBtn.textContent = "Otwórz e-mail ponownie";
-        emailBtn.addEventListener("click", () => openEmail(data, status));
-        actions.appendChild(emailBtn);
-      }
-
-      card.appendChild(actions);
+      actions.append(accept, reject);
+      card.append(heading, badge, details, actions);
       $("bookings").appendChild(card);
-    });
+    }
 
-    $("message").textContent = "Pobrano rezerwacje: " + snapshot.size;
-  } catch(err) {
+    $("message").textContent =
+      "Liczba rezerwacji: " + snapshot.size;
+  } catch (err) {
+    console.error(err);
     $("message").textContent = "Błąd Firestore: " + err.message;
   }
 }
