@@ -73,7 +73,7 @@
   <h1>NIGHTGLOW <span class="muted">DETAILING</span></h1>
   <p class="muted">Panel administracyjny</p>
 
-  <!-- Panel logowania -->
+  <!-- Panel logowania (widoczny domyślnie) -->
   <section id="loginPanel" class="panel">
     <h2>Logowanie</h2>
     <form id="loginForm">
@@ -86,7 +86,7 @@
     <p id="loginMessage" role="status"></p>
   </section>
 
-  <!-- Panel administracyjny -->
+  <!-- Panel administracyjny z rezerwacjami (ukryty do momentu zalogowania) -->
   <section id="adminPanel" class="hidden">
     <div class="panel">
       <h2>Rezerwacje</h2>
@@ -163,6 +163,7 @@
       + " (Kod: " + (error.code || "brak") + ")";
   }
 
+  // Obsługa kliknięcia "Zaloguj się"
   $("loginForm").addEventListener("submit", async event => {
     event.preventDefault();
     const button = $("loginButton");
@@ -175,9 +176,8 @@
         $("email").value.trim(),
         $("password").value
       );
-      // Sukces spowoduje wywołanie onAuthStateChanged, które przełączy widok
     } catch (error) {
-      console.error("Szczegóły błędu:", error);
+      console.error("Szczegóły błędu logowania:", error);
       showLoginMessage("Błąd: " + friendlyError(error));
     } finally {
       button.disabled = false;
@@ -194,6 +194,7 @@
 
   $("refreshButton").addEventListener("click", loadBookings);
 
+  // Nasłuchiwanie stanu logowania (pokazuje panel rezerwacji po zalogowaniu)
   onAuthStateChanged(auth, async user => {
     if (!user) {
       loginPanel.classList.remove("hidden");
@@ -231,6 +232,7 @@
     parent.appendChild(p);
   }
 
+  // Funkcja ładująca rezerwacje i generująca przyciski akcji
   async function loadBookings() {
     if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return;
 
@@ -260,5 +262,4 @@
         addText(card, "p", "E-mail: ", data.email || data.clientEmail);
         addText(card, "p", "Telefon: ", data.phone || data.telephone);
         addText(card, "p", "Usługa: ", data.service || data.services);
-        addText(card, "p", "Termin: ", data.date || data.datetime || data.appointmentDate);
-        addText(
+        addText(card, "p", "
