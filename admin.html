@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -99,21 +98,20 @@
 </main>
 
 <script type="module">
-  import { initializeApp } from
-    "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import {
     getAuth,
     signInWithEmailAndPassword,
     onAuthStateChanged,
     signOut
-  } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     getFirestore,
     collection,
     getDocs,
     doc,
     updateDoc
-  } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA-GFFqYaJBIAJYRGCiG3RqsA0Qv7uqeHME",
@@ -142,20 +140,13 @@
 
   function friendlyError(error) {
     const messages = {
-      "auth/invalid-credential":
-        "Nieprawidłowy e-mail lub hasło.",
-      "auth/user-not-found":
-        "Nie znaleziono konta. Sprawdź konfigurację Authentication.",
-      "auth/wrong-password":
-        "Nieprawidłowe hasło.",
-      "auth/too-many-requests":
-        "Zbyt wiele prób. Spróbuj później.",
-      "auth/api-key-not-valid":
-        "Firebase odrzuca klucz API. Sprawdź konfigurację Web App oraz ograniczenia klucza.",
-      "auth/unauthorized-domain":
-        "Domena strony nie jest dozwolona w Firebase Authentication.",
-      "permission-denied":
-        "Brak uprawnień Firestore dla tego konta."
+      "auth/invalid-credential": "Nieprawidłowy e-mail lub hasło.",
+      "auth/user-not-found": "Nie znaleziono konta. Sprawdź konfigurację Authentication.",
+      "auth/wrong-password": "Nieprawidłowe hasło.",
+      "auth/too-many-requests": "Zbyt wiele prób. Spróbuj później.",
+      "auth/api-key-not-valid": "Firebase odrzuca klucz API. Sprawdź konfigurację Web App oraz ograniczenia klucza w Google Cloud Console.",
+      "auth/unauthorized-domain": "Domena strony nie jest dozwolona w Firebase Authentication.",
+      "permission-denied": "Brak uprawnień Firestore dla tego konta."
     };
 
     return (messages[error.code] || error.message || "Nieznany błąd")
@@ -228,8 +219,7 @@
   }
 
   async function loadBookings() {
-    if (!auth.currentUser ||
-        auth.currentUser.uid !== ADMIN_UID) return;
+    if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return;
 
     showMessage("Ładowanie rezerwacji…");
     bookingsEl.replaceChildren();
@@ -254,16 +244,11 @@
           data.fullName || "Rezerwacja";
         card.appendChild(title);
 
-        addText(card, "p", "E-mail: ",
-          data.email || data.clientEmail);
-        addText(card, "p", "Telefon: ",
-          data.phone || data.telephone);
-        addText(card, "p", "Usługa: ",
-          data.service || data.services);
-        addText(card, "p", "Termin: ",
-          data.date || data.datetime || data.appointmentDate);
-        addText(card, "p", "Godzina: ",
-          data.time || data.appointmentTime);
+        addText(card, "p", "E-mail: ", data.email || data.clientEmail);
+        addText(card, "p", "Telefon: ", data.phone || data.telephone);
+        addText(card, "p", "Usługa: ", data.service || data.services);
+        addText(card, "p", "Termin: ", data.date || data.datetime || data.appointmentDate);
+        addText(card, "p", "Godzina: ", data.time || data.appointmentTime);
 
         const status = document.createElement("p");
         status.className = "status";
@@ -293,8 +278,7 @@
               showMessage("Zmieniono status rezerwacji.");
               await loadBookings();
             } catch (error) {
-              showMessage("Błąd zmiany statusu: " +
-                friendlyError(error));
+              showMessage("Błąd zmiany statusu: " + friendlyError(error));
               button.disabled = false;
             }
           });
