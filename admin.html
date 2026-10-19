@@ -147,7 +147,71 @@ NightGlow Detailing`;
     "&body=" + encodeURIComponent(body);
 }
 
+
 async function changeStatus(id, data, status) {
+  if (status === "confirmed" && !data.email) {
+    alert("Brak adresu e-mail klienta.");
+    return;
+  }
+
+  const shouldEmail = status === "confirmed" || status === "rejected";
+
+  // Otwórz okno poczty bezpośrednio przy kliknięciu,
+  // zanim wykonamy operacje Firebase.
+  let mailWindow = null;
+
+  if (shouldEmail && data.email) {
+    const confirmed = status === "confirmed";
+    const subject = confirmed
+      ? "Potwierdzenie rezerwacji — NightGlow Detailing"
+      : "Informacja o rezerwacji — NightGlow Detailing";
+
+    const body = confirmed
+      ? `Cześć!
+
+Potwierdzamy Twoją rezerwację w NightGlow Detailing.
+
+Data: ${data.date || "do ustalenia"}
+Samochód: ${data.car || "nie podano"}
+Usługi: ${data.services || "do ustalenia"}
+Cena: ${data.price || "do ustalenia"}
+
+Dziękujemy i do zobaczenia!
+
+NightGlow Detailing`
+      : `Cześć!
+
+Niestety, nie możemy potwierdzić Twojej rezerwacji w podanym terminie.
+Skontaktuj się z nami, aby ustalić inny termin.
+
+Data: ${data.date || "nie podano"}
+
+NightGlow Detailing`;
+
+    const mailto = "mailto:" + encodeURIComponent(data.email) +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(body);
+
+    mailWindow = window.open(mailto, "_blank");
+  }
+
+  try {
+    await updateDoc(doc(db, "bookings", id), { status });
+
+    $("message").textContent = "Zmieniono status rezerwacji.";
+    await loadBookings();
+
+    if (shouldEmail && !mailWindow) {
+      $("message").textContent =
+        "Status zapisano. Jeśli poczta się nie otworzyła, zezwól przeglądarce na otwieranie linków mailto.";
+    }
+  } catch (err) {
+    if (mailWindow) mailWindow.close();
+    $("message").textContent =
+      "Nie udało się zmienić statusu: " + err.message;
+  }
+}
+  
   try {
     await updateDoc(doc(db, "bookings", id), { status });
     $("message").textContent =
