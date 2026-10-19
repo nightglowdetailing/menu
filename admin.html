@@ -95,7 +95,15 @@ async function loadBookings(){
   $("message").textContent="Pobieranie rezerwacji…";
   try {
     const snapshot=await getDocs(collection(db,"bookings"));
-    if(snapshot.empty){
+
+console.log("Firebase project:", app.options.projectId);
+console.log("Liczba dokumentów:", snapshot.size);
+console.log("Dokumenty:", snapshot.docs.map(d => ({
+  id: d.id,
+  data: d.data()
+})));
+
+if(snapshot.empty){
       $("bookings").textContent="Brak dokumentów w kolekcji bookings.";
     }
     snapshot.forEach(doc=>{
