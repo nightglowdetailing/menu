@@ -294,7 +294,12 @@ document.getElementById('next').disabled=vm>=new Date(td.getFullYear(),td.getMon
 cg.addEventListener('click',function(e){var b=e.target.closest('.day');if(!b||b.disabled)return;
 var d=new Date(+b.dataset.t);sel=+d;selTxt=fmt(d);var l=lvl(d);
 pk.textContent='Wybrany termin: '+selTxt+' ('+ST[l]+')';
-ction')calc()});
+bk.hidden = false;
+bk.href = '#';
+bk.dataset.date = d.getFullYear() + '-' +
+  ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+  ('0' + d.getDate()).slice(-2);
+});
 document.getElementById('prev').addEventListener('click',function(){vm=new Date(vm.getFullYear(),vm.getMonth()-1,1);draw()});
 document.getElementById('next').addEventListener('click',function(){vm=new Date(vm.getFullYear(),vm.getMonth()+1,1);draw()});
 draw();
@@ -314,22 +319,16 @@ ba.querySelector('input').addEventListener('input',function(e){ba.style.setPrope
 
 </script>
 
-<script type="module">
-import {
-  initializeApp,
-  getApps,
-  getApp
-} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+  <script type="module">
+import { initializeApp, getApps, getApp }
+from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp
+  getFirestore, collection, addDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 const config = {
-  apiKey: "AIzaSyA-GFFqYaJBIAJYRgCI3RqsA0Qv7uqeHME",
+  apiKey: "AIzaSyA-GFFqYaJBIAJYRGC I3RqsA0Qv7uqeHME".replaceAll(" ", ""),
   authDomain: "nightglow-detailing.firebaseapp.com",
   projectId: "nightglow-detailing",
   storageBucket: "nightglow-detailing.firebasestorage.app",
@@ -337,65 +336,63 @@ const config = {
   appId: "1:498718568327:web:7407af75b4568883df2d22"
 };
 
-const app = getApps().length
-  ? getApp()
-  : initializeApp(config);
-
+const app = getApps().length ? getApp() : initializeApp(config);
 const db = getFirestore(app, "(default)");
+const book = document.getElementById("book");
 
-async function saveBooking(link, source) {
-  const originalText = link.textContent;
-  const url = new URL(link.href);
+book.addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  const date = book.dataset.date;
+  if (!date) {
+    alert("Najpierw wybierz dzień w kalendarzu.");
+    return;
+  }
+
+  const name = prompt("Imię i nazwisko:");
+  if (!name?.trim()) return;
+
+  const email = prompt("Adres e-mail:");
+  if (!email?.trim()) return;
+
+  const phone = prompt("Numer telefonu:");
+  if (!phone?.trim()) return;
+
+  const car = prompt("Marka i model auta:");
+  if (!car?.trim()) return;
+
+  const services = prompt("Wybrana usługa:");
+  if (!services?.trim()) return;
+
+  const price = prompt("Orientacyjna cena:");
+  if (!price?.trim()) return;
+
+  book.textContent = "Zapisywanie...";
+  book.style.pointerEvents = "none";
 
   try {
-    link.style.pointerEvents = "none";
-    link.textContent = "Zapisywanie...";
-
     await addDoc(collection(db, "bookings"), {
-      subject: url.searchParams.get("subject") || "Rezerwacja",
-      body: url.searchParams.get("body") || "",
-      source: source,
       status: "new",
+      date,
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      car: car.trim(),
+      services: services.trim(),
+      price: price.trim(),
       createdAt: serverTimestamp()
     });
 
     alert("Zgłoszenie zapisane!");
-
-  } catch (error) {
-    console.error(error);
-    alert("Błąd zapisu: " + error.message);
-
+  } catch (err) {
+    console.error(err);
+    alert("Błąd Firebase: " + err.message);
   } finally {
-    link.style.pointerEvents = "";
-    link.textContent = originalText;
+    book.textContent = "Umów się";
+    book.style.pointerEvents = "";
   }
-}
-
-document.getElementById("book")?.addEventListener("click", function(e) {
-  e.preventDefault();
-  e.stopImmediatePropagation();
-  document.getElementById("book")?.addEventListener("click", function(e) {
-  e.preventDefault();
-  e.stopImmediatePropagation();
-  alert("Przycisk działa — test");
-}, true);
-
-document.getElementById("mail")?.addEventListener("click", function(e) {
-  e.preventDefault();
-  saveBooking(this, "pakiet");
 });
-</script>
-
-</body>
-
-  <script>
-document.addEventListener('click', function(e) {
-  const link = e.target.closest('#book');
-  if (!link) return;
-  e.preventDefault();
-  e.stopImmediatePropagation();
-  alert('Przechwycono kliknięcie kalendarza');
-}, true);
   </script>
   
+</body>
 </html>
