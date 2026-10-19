@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NightGlow — Panel administratora</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #101010;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      padding: 24px;
+    }
+    main {
+      max-width: 480px;
+      margin: 60px auto;
+      background: #1b1b1b;
+      border: 1px solid #444;
+      border-radius: 14px;
+      padding: 24px;
+    }
+    h1 { font-size: 25px; }
+    p { color: #bbb; line-height: 1.5; }
+    input, button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 12px;
+      border-radius: 7px;
+      font-size: 16px;
+    }
+    input {
+      background: #111;
+      color: white;
+      border: 1px solid #555;
+    }
+    button {
+      background: white;
+      color: black;
+      border: 0;
+      font-weight: bold;
+    }
+    #message { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>NightGlow Detailing</h1>
+    <p>Panel administratora</p>
+
+    <form id="login">
+      <input id="email" type="email"
+        placeholder="Adres e-mail administratora" required>
+      <input id="password" type="password"
+        placeholder="Hasło" required>
+      <button type="submit">Zaloguj się</button>
+    </form>
+
+    <p id="message">Panel logowania zostanie podłączony do Firebase w następnym kroku.</p>
+  </main>
+</body>
+</html>
